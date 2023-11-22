@@ -1,26 +1,32 @@
 package org.mobint.servlets;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.mobint.dao.CustomerDAO;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.List;
+import java.util.Map;
 
 @WebServlet("/getCustomers")
-public class CustomersServlet {
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+public class CustomersServlet extends HttpServlet {
+    private final CustomerDAO customerDAO = new CustomerDAO();
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String query = """ 
-                select *
-                from customer c
-                	left join table_1 t1 on t1.customerId = c.customerId
-                	...
-                	left join table_N tN on tN.customerId = c.customerId
-                                
-                	left join table_many tm on c.customerId = tm.customerId
-                order by c.customerId
-                offset offset_value limit 5000
-                """;
+        Gson gson = new Gson();
+        Type requestType = new TypeToken<Map<String, Integer>>(){}.getType();
+        Map<String, Integer> map = gson.fromJson(request.getReader(), requestType);
+        int offset = map.get("offset");
+        List<Map<String, String>> customers = customerDAO.getCustomers(offset);
+        Type resultType = new TypeToken<List<Map<String, Integer>>>(){}.getType();
+        String json = gson.toJson(customers, resultType);
+        response.setContentType("application/json;charset=UTF-8");
+        response.getOutputStream().print(json);
     }
 }

@@ -10,10 +10,10 @@ import org.mobint.dao.PositionCardDAO;
 import java.io.IOException;
 
 @WebServlet("/positionCardName")
-public class IndexServlet extends HttpServlet {
+public class PositionCardsServlet extends HttpServlet {
     private final PositionCardDAO positionCardDAO;
 
-    public IndexServlet() {
+    public PositionCardsServlet() {
         this.positionCardDAO = new PositionCardDAO();
     }
 
